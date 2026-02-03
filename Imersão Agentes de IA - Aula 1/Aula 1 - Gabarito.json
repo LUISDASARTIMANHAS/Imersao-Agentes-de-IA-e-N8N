@@ -1,0 +1,1372 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook_path",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1376,
+        32
+      ],
+      "id": "d0e153dd-4c1e-4602-a045-510b359bbb53",
+      "name": "Webhook",
+      "webhookId": "b8f96ba4-f772-4bdc-82d6-a5a93744c7c7"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        112
+      ],
+      "id": "2b4d9ff7-e56c-45ba-a1ac-28dd9032b5b2",
+      "name": "Wait14",
+      "webhookId": "9eefea73-e6dc-4e8b-9c69-18ae96f859ce"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        192
+      ],
+      "id": "34f2e3c4-5a59-4471-8d3c-3ef6142fc17b",
+      "name": "Usuário está com a IA desligada"
+    },
+    {
+      "parameters": {
+        "content": "## Verificar se o chat da pessoa está com o IA desativada",
+        "height": 896,
+        "width": 800,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        -304
+      ],
+      "id": "8b5a9b10-43b2-44ab-a38b-f694a047a122",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Buffer de 10 segundos",
+        "height": 896,
+        "width": 1328
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -304
+      ],
+      "id": "9a317af2-5c45-45af-b439-4c07c588100f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Sistema de Fila, só deixa um mensagem se respondinda por vez",
+        "height": 896,
+        "width": 1328,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -304
+      ],
+      "id": "37d1547f-573e-415e-bd2c-9aa162f25839",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "workspace",
+              "value": "={{ $json.body.data.website_id }}"
+            },
+            {
+              "key": "session_id",
+              "value": "={{ $json.body.data.session_id }}"
+            },
+            {
+              "key": "content",
+              "value": "={{ $json.body.data.content }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1.1,
+      "position": [
+        -1168,
+        32
+      ],
+      "id": "0505ef13-0081-4882-a708-783b3813f4be",
+      "name": "Execution Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "149d162a-0c0f-43bb-bc2d-c98e05fec4d4",
+              "name": "id",
+              "value": "={{ $('Consulta itens na fila').first().json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "8f7f1f67-e581-4a1c-aaf9-2f99630a8658",
+              "name": "session_id",
+              "value": "={{ $('Consulta itens na fila').first().json.session_id }}",
+              "type": "string"
+            },
+            {
+              "id": "c15e5b53-4dce-4def-b80e-fe495de01573",
+              "name": "message",
+              "value": "={{ $('Consulta itens na fila').first().json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "84280287-06c5-4a13-885e-68cbf2894c2f",
+              "name": "created_at",
+              "value": "={{ $('Consulta itens na fila').first().json.created_at }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2352,
+        -48
+      ],
+      "id": "31cc4931-80f9-4f98-91c4-a3b8a50f14ba",
+      "name": "item_fila"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Dados do usuário').first().json.session_id }}",
+        "messageData": "={{ $('Dados do usuário').first().json.content }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        96,
+        16
+      ],
+      "id": "7d6bafed-1108-4700-bc35-0019f3741c3d",
+      "name": "Adicionar mensagem na memoria"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "Message",
+        "key": "={{ $('Dados do usuário').first().json.session_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        320,
+        16
+      ],
+      "id": "adf334b6-2b96-415c-abea-a1c1eea7da7e",
+      "name": "Consulta mensagem na memória"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Dados do usuário').first().json.content }}",
+                    "rightValue": "={{ $json.Message.last() }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "id": "9e3ed455-1d68-47a4-b4d9-7db16b4aeb30"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Fazer nada"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5259bfad-b18b-48be-a0f7-007b5d50841e",
+                    "leftValue": "={{ $('Dados do usuário').first().json.timestamp.toDateTime() }}",
+                    "rightValue": "={{ $now.minus(10,'seconds') }}",
+                    "operator": {
+                      "type": "dateTime",
+                      "operation": "before"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Prosseguir"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Esperar 10 segundos"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        16
+      ],
+      "id": "6b036758-a233-45c1-8070-2620471bcff2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "message",
+        "key": "={{ $('Dados do usuário').first().json.session_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        912,
+        16
+      ],
+      "id": "b170fee9-5d96-4109-9257-750e54cdb0d4",
+      "name": "Consultar todas mensagem acumuladas"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        192
+      ],
+      "id": "68c5276b-f365-4ce1-9ec2-2cb30d67aee3",
+      "name": "Wait",
+      "webhookId": "ad98badb-87ef-4e13-86e6-96bda7c3ed04"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Dados do usuário').first().json.session_id }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        16
+      ],
+      "id": "371844e3-0e14-43f5-9efc-75acb61af29e",
+      "name": "Deletar da memória a mensagem"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "fila_chatbot",
+          "mode": "list",
+          "cachedResultName": "fila_chatbot"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('Dados do usuário').first().json.session_id }}",
+            "message": "={{ $('Consultar todas mensagem acumuladas').item.json.message.join(\" \") }}",
+            "created_at": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1600,
+        16
+      ],
+      "id": "aa828787-8853-4a6d-aa96-3fa9adb7a3e0",
+      "name": "Adicionar mensagem na fila",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const hasProcessando = $('Consulta itens na fila').all().some(item => item.json.status === 'processando')\n\nreturn [\n  {\n    json: {\n      hasProcessando\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        16
+      ],
+      "id": "eb2be809-1072-4d7b-af31-cfa9ee004214",
+      "name": "Tem alguma coisa na fila?",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "fila_chatbot",
+          "mode": "list",
+          "cachedResultName": "fila_chatbot"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('Dados do usuário').first().json.session_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1824,
+        16
+      ],
+      "id": "9cb76bff-5c58-49a5-b21b-762574cb297d",
+      "name": "Consulta itens na fila",
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8e32249a-2c29-4eb5-9bdc-7730b7376d88",
+              "leftValue": "={{ $json.hasProcessando }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2176,
+        16
+      ],
+      "id": "d2cffdbe-547c-45a9-9ac8-644d7c7f5d58",
+      "name": "Primeira vez do item?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "fila_chatbot",
+          "mode": "list",
+          "cachedResultName": "fila_chatbot"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "status": "processando"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2512,
+        -48
+      ],
+      "id": "95189ccf-da93-406b-a27d-14258004e447",
+      "name": "Atualizar status para processando item da fila",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "gpt-5.1",
+        "options": {}
+      },
+      "id": "453a6773-099c-41a0-ae97-c9a7b01c071a",
+      "name": "OpenAI Chat Model18",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        3936,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.crisp.chat/v1/website/{{ $('Dados do usuário').first().json.website_id }}/conversation/{{ $('Dados do usuário').first().json.session_id }}/message",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Crisp-Tier",
+              "value": "plugin"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"type\": \"text\",\n    \"from\": \"operator\",\n    \"origin\": \"chat\",\n    \"content\": {{  $json.output.toJsonString().replace(/【(.*?)】/g, '').trim();\n }},\n\"user\": {\n      \"nickname\": \"Suporte\",\n      \"avatar\": \"https://example.com/imagem.png\"\n    }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4352,
+        -48
+      ],
+      "id": "29f19c5e-6b53-491c-9262-b3ad349ca57f",
+      "name": "Crisp",
+      "executeOnce": true,
+      "retryOnFail": false,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "fila_chatbot",
+          "mode": "list",
+          "cachedResultName": "fila_chatbot"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $('item_fila').first().json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4592,
+        -48
+      ],
+      "id": "52c9899c-3e77-42e8-bc62-681c1966a194",
+      "name": "Deletar item da fila",
+      "retryOnFail": true,
+      "executeOnce": false,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.message }}",
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "id": "b17617ec-6434-41f2-b19b-c4795d49f33b",
+      "name": "Hashtag IA",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        3264,
+        -48
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "content": "## Hashtag (Crisp) resposta",
+        "height": 896,
+        "width": 608,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4256,
+        -304
+      ],
+      "id": "87b50498-8d38-479f-8937-5aa9ec9dd465",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## IA Hashtag",
+        "height": 896,
+        "width": 1584
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        -304
+      ],
+      "id": "51565250-bb79-4893-ab2b-160d471022f5",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3e768a6f-4c02-4c25-9696-ddc77ec26af1",
+              "leftValue": "={{ $(\"Consultar se o usuário está com IA desativada.\").item.json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        32
+      ],
+      "id": "fd85adbc-de38-4e62-be39-ea017e48441c",
+      "name": "O usuário está com a IA ativada?"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ai_chat_disabled_sessions",
+          "mode": "list",
+          "cachedResultName": "ai_chat_disabled_sessions"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('Dados do usuário').first().json.session_id}}"
+            },
+            {
+              "column": "workspace_id",
+              "value": "={{ $('Dados do usuário').first().json.website_id}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -768,
+        32
+      ],
+      "id": "5b153f03-5e5d-4100-bcba-bccbd05c61d2",
+      "name": "Consultar se o usuário está com IA desativada.",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b61ce5bd-b8c2-443a-bfa5-e7be48e90d2c",
+              "name": "content",
+              "value": "={{ $json.body.data.content }}",
+              "type": "string"
+            },
+            {
+              "id": "23ca1aaf-89df-49f0-8db9-d946566b8c36",
+              "name": "session_id",
+              "value": "={{ $json.body.data.session_id }}",
+              "type": "string"
+            },
+            {
+              "id": "f83c7aea-1e68-4c49-8a32-c6c058b4aac9",
+              "name": "website_id",
+              "value": "={{ $json.body.data.website_id }}",
+              "type": "string"
+            },
+            {
+              "id": "96b79299-0d80-46c8-b4e9-cb7f4dfa4cde",
+              "name": "timestamp",
+              "value": "={{ $json.body.timestamp }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -960,
+        32
+      ],
+      "id": "3b2121b2-dada-4454-9d5d-e3f629800279",
+      "name": "Dados do usuário"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sessions (session_id, thread_id, origem, curso, workspace)\nVALUES (\n  '{{ $('Dados do usuário').first().json.session_id }}',\n  NULL,\n  NULL,\n  NULL,\n  '{{ $('Dados do usuário').first().json.website_id }}'\n)\nON CONFLICT (session_id) DO NOTHING;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        320,
+        -160
+      ],
+      "id": "6eb044b9-626a-4259-be3e-107a226a0201",
+      "name": "Registrar usuário",
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -144
+      ],
+      "id": "a31984d7-c310-4154-8556-eafeaf6eb2e7",
+      "name": "Fazer nada"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Dados do usuário').first().json.session_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        4096,
+        64
+      ],
+      "id": "5dac2f3d-2d15-4a32-814d-f51363dbbc1f",
+      "name": "Postgres Chat Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "acesso_vip",
+        "tableName": {
+          "__rl": true,
+          "value": "nome_tabela",
+          "mode": "id"
+        },
+        "options": {
+          "queryName": "nome_funcao_supabase"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        2688,
+        256
+      ],
+      "id": "a005bf02-bf21-43f1-a584-e7261661d88a",
+      "name": "acesso_vip",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "0429c3dc-bbe7-489c-be35-d7acdb59838c",
+      "name": "Embeddings OpenAI13",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        3344,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "comunidade_impressionadora",
+        "tableName": {
+          "__rl": true,
+          "value": "nome_tabela",
+          "mode": "id"
+        },
+        "options": {
+          "queryName": "nome_funcao_supabase"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        2976,
+        256
+      ],
+      "id": "fe4c0d89-20d0-47c4-8066-8e7befd0dd44",
+      "name": "comunidade_impressionadora",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "perguntas_gerais",
+        "tableName": {
+          "__rl": true,
+          "value": "nome_tabela",
+          "mode": "id"
+        },
+        "options": {
+          "queryName": "nome_funcao_supabase"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        3264,
+        256
+      ],
+      "id": "8c73853f-59b6-490d-9cb8-abeeaf13384e",
+      "name": "perguntas_gerais",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "professores",
+        "tableName": {
+          "__rl": true,
+          "value": "nome_tabela",
+          "mode": "id"
+        },
+        "options": {
+          "queryName": "nome_funcao_supabase"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        3552,
+        256
+      ],
+      "id": "cf626151-d66a-40b4-b941-12597c020e97",
+      "name": "professores",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "wcitrial",
+        "tableName": {
+          "__rl": true,
+          "value": "nome_tabela",
+          "mode": "id"
+        },
+        "options": {
+          "queryName": "nome_funcao_supabase"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        3840,
+        256
+      ],
+      "id": "ec9e3a54-209d-4c3b-8b83-5716b3e460f0",
+      "name": "wcitrial",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait14": {
+      "main": [
+        [
+          {
+            "node": "Consulta itens na fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execution Data": {
+      "main": [
+        [
+          {
+            "node": "Dados do usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "item_fila": {
+      "main": [
+        [
+          {
+            "node": "Atualizar status para processando item da fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar mensagem na memoria": {
+      "main": [
+        [
+          {
+            "node": "Consulta mensagem na memória",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta mensagem na memória": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Fazer nada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consultar todas mensagem acumuladas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar todas mensagem acumuladas": {
+      "main": [
+        [
+          {
+            "node": "Deletar da memória a mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Consulta mensagem na memória",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletar da memória a mensagem": {
+      "main": [
+        [
+          {
+            "node": "Adicionar mensagem na fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adicionar mensagem na fila": {
+      "main": [
+        [
+          {
+            "node": "Consulta itens na fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem alguma coisa na fila?": {
+      "main": [
+        [
+          {
+            "node": "Primeira vez do item?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta itens na fila": {
+      "main": [
+        [
+          {
+            "node": "Tem alguma coisa na fila?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Primeira vez do item?": {
+      "main": [
+        [
+          {
+            "node": "item_fila",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar status para processando item da fila": {
+      "main": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model18": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crisp": {
+      "main": [
+        [
+          {
+            "node": "Deletar item da fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hashtag IA": {
+      "main": [
+        [
+          {
+            "node": "Crisp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "O usuário está com a IA ativada?": {
+      "main": [
+        [
+          {
+            "node": "Registrar usuário",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Adicionar mensagem na memoria",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Usuário está com a IA desligada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar se o usuário está com IA desativada.": {
+      "main": [
+        [
+          {
+            "node": "O usuário está com a IA ativada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados do usuário": {
+      "main": [
+        [
+          {
+            "node": "Consultar se o usuário está com IA desativada.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "acesso_vip": {
+      "ai_tool": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI13": {
+      "ai_embedding": [
+        [
+          {
+            "node": "acesso_vip",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "comunidade_impressionadora",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "perguntas_gerais",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "professores",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "wcitrial",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "comunidade_impressionadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "perguntas_gerais": {
+      "ai_tool": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "professores": {
+      "ai_tool": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wcitrial": {
+      "ai_tool": [
+        [
+          {
+            "node": "Hashtag IA",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf3a3b431ca14b9ebd533eaa80d99f09ea108cef19a32d55b34af253955dc462"
+  }
+}
