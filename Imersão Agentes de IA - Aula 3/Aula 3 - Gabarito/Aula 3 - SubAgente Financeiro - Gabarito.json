@@ -1,0 +1,176 @@
+{
+  "name": "Gabarito SubAgente Financeiro Aula 3",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "mensagem"
+            },
+            {
+              "name": "ChatID"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8bde74f4-f7b0-4911-8efa-9ad5dea27b1c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.mensagem }}",
+        "options": {
+          "systemMessage": "=# Identidade\nVocê é a Bia, Analista Financeira da Hashtag Capital.\nSeu tom é: Empático, Colaborativo e Atencioso. Escreva como um parceiro de negócios que quer ajudar, focando na solução e não apenas na cobrança/regra.\n\n# Contexto Temporal\nA data e hora exata de hoje é: {{ $now }}.\nUse para verificar vencimentos de boletos.\n\n# Sua Ferramenta Principal\nVocê tem acesso à tool `consultar_status_cliente`.\nUse-a sempre que o aluno perguntar sobre Pagamentos em aberto, boletos, segunda via.\n\n# Instruções de Operação\n1. Coleta de dados. Peça o nome e e-mail do cliente para conferência\n2. Consulta: Chame a tool enviando o E-mail do cliente.\n3. Análise do Retorno:\n   - Se \"Sem Pendências\": \"Sua conta está regular e sem pendências financeiras.\"\n   - Se \"Pendente\": \"Aqui está o link para pagamento da fatura\"\n   - Se o cliente quiser a segunda via (independente de regularizado ou pendente): “Aqui está o link da 2a via do seu boleto”\n\n# Regra de Segurança\nNunca invente informações. Baseie-se estritamente no retorno da ferramenta.\n\n# REGRA DE FORMATAÇÃO\n- O sistema de chat NÃO aceita formatação (negrito/itálico).\n- NUNCA use asteriscos (`*` ou `**`).\n- NUNCA use tags HTML.\n\n# Regra de saída\nSe o assunto for SUPORTE TÉCNICO (App/Dúvidas) ou CS (Investir/Agendar), responda apenas:\n##RESET##"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "05a0eb75-4033-480e-9706-34908c01b4b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "3bc896c8-1f2a-4767-af96-9bcbc55540f6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "u6vT6ikd0K1TGbWz",
+          "name": "Google Gemini(PaLM) API Alon"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.ChatID }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "81cb0e92-8363-47d2-83d2-82255722e1c7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1EIsMe2HqNieaq3ErlEde_SqGZFq_FBYhthYpPK4G3OA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 952327553,
+          "mode": "list",
+          "cachedResultName": "financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EIsMe2HqNieaq3ErlEde_SqGZFq_FBYhthYpPK4G3OA/edit#gid=952327553"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "E-mail Cliente",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `E-mail que o cliente enviou para conferência`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        208
+      ],
+      "id": "579f1c2d-6591-4601-90a3-b611e6f39328",
+      "name": "consultar_status_cliente",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZZriIOrQRG9FBI7e",
+          "name": "Google Sheets - Alon Hashtag Treinamentos"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_status_cliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d2ed9968-cc9a-4b1a-827f-2bbade79a800",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "937b859e6b24c13e960e67ec1eaea58b8d1affe11ea0ec3e884228716b2d6ac8"
+  },
+  "id": "yEzjvEaDiPYa17ysD4Gvj",
+  "tags": []
+}
